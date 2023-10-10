@@ -1,3 +1,12 @@
+<?php
+session_start();
+if ( !isset($_SESSION["login"])) {
+  header("location: login.php");
+
+  exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,7 +178,7 @@
           <img src="asset/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Muhammad Rahulil</a>
+          <a href="#" class="d-block"><?= $_SESSION["username"]; ?></a>
         </div>
       </div>
 
@@ -214,10 +223,10 @@
             </ul>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
+            <a href="logout.php" class="nav-link">
+              <i class="nav-icon fas fa-times"></i>
               <p>
-                Simple Link
+                Logout
                 <span class="right badge badge-danger">New</span>
               </p>
             </a>

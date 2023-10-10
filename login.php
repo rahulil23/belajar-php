@@ -1,10 +1,14 @@
 <?php 
+session_start();
 //submit
 if (isset($_POST["submit"])) {
     //usernmae dan pasword
     if ( $_POST["username"] == "rahul" && $_POST["password"] == "12345") {
         //jika benar
-        header("Location: listproduk.php");
+
+        $_SESSION["login"] = true;
+        $_SESSION["username"] = $_POST["username"];
+        header("Location: dashboard.php");
         exit;
     } 
     else {
