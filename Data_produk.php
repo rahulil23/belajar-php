@@ -6,6 +6,14 @@ if ( !isset($_SESSION["login"])) {
 
   exit;
 }
+//queri sql
+$query = "SELECT * FROM products";
+$result = $conn->query($query);
+
+if (!$result) {
+    die("Error dalam eksekusi query: " . $conn->error);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +21,7 @@ if ( !isset($_SESSION["login"])) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard User</title>
+  <title>Data-Produk</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -29,14 +37,14 @@ if ( !isset($_SESSION["login"])) {
   <?php
   include('navbar.php');
   ?>
-  <!--/Navbar-->
+  <!--Navbar-->
 
   <!-- Main Sidebar Container -->
   <?php
   include('sidebar.php');
   ?>
   <!--/sidebar-->
-
+  
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -44,7 +52,7 @@ if ( !isset($_SESSION["login"])) {
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">PRODUK</h1>
+            <h1 class="m-0"> DATA PRODUK</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -58,50 +66,57 @@ if ( !isset($_SESSION["login"])) {
     <!-- /.content-header -->
   
     <!-- Main content -->
-    <div class="row row-cols-1 row-cols-md-4 g-4 m-1">
-        <?php
-        //Eksekusi query SQL
-          $query = "SELECT * FROM products";
-
-          $result = mysqli_query($conn, $query);
-
-          if (!$result) {
-              die("Query error: " . mysqli_error($conn));
-          }
-
-          //Ambil hasil query dan simpan dalam array produk
-          $produk = [];
-          while ($row = mysqli_fetch_assoc($result)) {
-              $produk[] = $row;
-          }
-
-        // Loop untuk menampilkan produk
-        foreach ($produk as $item) {
-        ?>
-          <div class="col mt-1">
-            <div class="card h-100">
-              <img src="<?php echo $item['image']; ?>" class="card-img-top" alt="<?php echo $item['product_name']; ?>">
-              <div class="card-body m-1">
-                  <h5 class="card-title m-1"><?php echo $item['product_name']; ?></h5>
-                  <p class="card-text m-1"><?php echo $item['description']; ?></p>
-                  <p class="text-body-secondary m-1"><?php echo $item['price']; ?></p>
-                  <p style="color: gold;" class="m-1">
-                  <i class="fas fa-star"></i> 
-                  <i class="fas fa-star"></i> 
-                  <i class="fas fa-star"></i> 
-                  <i class="fas fa-star"></i> 
-                  <i class="fas fa-star-half-alt"></i>
-                  </p>
-                  <a href="#" class="btn btn-primary">Beli</a>
-                  <a href="#" class="btn btn-link">Selengkapnya</a>
-              </div>
-            </div>
-          </div>
-        <?php
-        } // Akhir loop produk
-        mysqli_close($conn);
-        ?>
+    <div class="card">
+      <div class="card-header">
+        <a href="tambah_produk.php" class="btn btn-primary" role="button" title="Tambah Data"><i class="glyphicon glyphicon-plus"></i> Tambah</a>
       </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+        <table id="example1" class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama produk</th>
+            <th>Kategori Produk</th>
+            <th>Kode produk</th>
+            <th>deskripsi</th>
+            <th>Harga</th>
+            <th>aksi</th>
+          </tr>
+          </thead>
+          <tbody>
+          <?php
+          while ($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td>" . $row['id'] . "</td>";
+            echo "<td>" . $row['product_name'] . "</td>";
+            echo "<td>" . $row['category_id'] . "</td>";
+            echo "<td>" . $row['product_code'] . "</td>";
+            echo "<td>" . $row['description'] . "</td>";
+            echo "<td>" . $row['price'] . "</td>";
+            echo "<td>";
+            echo "<a href='edit_produk.php?id=" . $row['id'] . "' class='btn btn-success'>Ubah</a>";
+            echo "<a href='hapus_produk.php?id=" . $row['id'] . "' class='btn btn-danger'>Hapus</a>";
+            echo "</td>";
+            echo "</tr>";
+          }
+        
+          ?>
+          </tbody>
+          <tfoot>
+          <tr>
+          <th>No</th>
+            <th>Nama produk</th>
+            <th>Kategori Produk</th>
+            <th>Kode produk</th>
+            <th>deskripsi</th>
+            <th>Harga</th>
+            <th>aksi</th>
+          </tr>
+          </tfoot>
+        </table>
+      </div>    
+    </div>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
