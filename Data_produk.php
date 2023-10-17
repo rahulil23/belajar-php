@@ -44,7 +44,7 @@ if (!$result) {
   include('sidebar.php');
   ?>
   <!--/sidebar-->
-  
+
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -86,9 +86,12 @@ if (!$result) {
           </thead>
           <tbody>
           <?php
-          while ($row = $result->fetch_assoc()) {
+          $no = 1;
+          while ($row = $result->fetch_assoc()) 
+          {
+            
             echo "<tr>";
-            echo "<td>" . $row['id'] . "</td>";
+            echo "<td>" . $no . "</td>";
             echo "<td>" . $row['product_name'] . "</td>";
             echo "<td>" . $row['category_id'] . "</td>";
             echo "<td>" . $row['product_code'] . "</td>";
@@ -99,7 +102,9 @@ if (!$result) {
             echo "<a href='hapus_produk.php?id=" . $row['id'] . "' class='btn btn-danger'>Hapus</a>";
             echo "</td>";
             echo "</tr>";
+            $no++;
           }
+          
         
           ?>
           </tbody>
