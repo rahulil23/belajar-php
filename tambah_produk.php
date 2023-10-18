@@ -99,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
               ?>
               <label for="category_id">Kategori Produk:</label>
               <select name="category_id" id="category_id" class="form-control" required>
+              <option disabled selected value></option>
                 <?php
                 foreach ($categories as $category) {
                   echo "<option value='" . $category['id'] . "'>" . $category['id'] . "</option>";
