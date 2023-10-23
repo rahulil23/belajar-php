@@ -12,18 +12,19 @@ $limit = 4;
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Handle search form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $search = $conn->real_escape_string($_POST['search']);
+// fungsi pencarian
+if (isset($_GET['search'])) {
+    $search = $conn->real_escape_string($_GET['search']);
     $query = "SELECT * FROM products WHERE 
       product_name LIKE '%$search%' OR 
       category_id LIKE '%$search%' OR
-      description LIKE '%$search%'
-      LIMIT $limit";
+      description LIKE '%$search%'";
 } else {
-    $query = "SELECT * FROM products
-      LIMIT $limit OFFSET $offset";
+    $query = "SELECT * FROM products";
 }
+
+// limit dan offset
+$query .= " LIMIT $limit OFFSET $offset";
 
 $result = $conn->query($query);
 if (!$result) {
@@ -33,9 +34,7 @@ if (!$result) {
 $totalRecordsQuery = "SELECT COUNT(*) AS total FROM products";
 $totalRecordsResult = $conn->query($totalRecordsQuery);
 $totalRecords = $totalRecordsResult->fetch_assoc()['total'];
-
 $totalPages = ceil($totalRecords / $limit);
-
 ?>
 
 <!DOCTYPE html>
@@ -98,7 +97,7 @@ $totalPages = ceil($totalRecords / $limit);
                                 <div class="card-header">
                                     <a href="tambah_produk.php" class="btn btn-primary" role="button" title="Tambah Data"><i class="glyphicon glyphicon-plus"></i> Tambah</a>
                                     <div class="float-right">
-                                        <form id="search" method="post">
+                                        <form id="search" method="get">
                                             <div class="input-group">
                                                 <input type="text" name="search" class="form-control" placeholder="Cari Produk">
                                                 <div class="input-group-append">
@@ -161,23 +160,39 @@ $totalPages = ceil($totalRecords / $limit);
                                     <div class="card-footer clearfix">
                                         <ul class="pagination pagination-sm m-0 float-right">
                                             <?php
-                                            if ($page > 1) {
-                                                echo "<li class='page-item'><a class='page-link' href='?page=" . ($page - 1) . "'>Previous</a></li>";
+                                            if (isset($_GET['search'])) {
+                                                if ($page > 1) {
+                                                    echo "<li class='page-item'><a class='page-link' href='Data_produk.php?search=$search&page=" . ($page - 1) . "'>Previous</a></li>";
+                                                }
+
+                                                for ($i = 1; $i <= $totalPages; $i++) {
+                                                    echo "<li class='page-item " . ($page == $i ? 'active' : '') . "'>";
+                                                    echo "<a class='page-link' href='Data_produk.php?search=$search&page=$i'>$i</a>";
+                                                    echo "</li>";
+                                                }
+
+                                                if ($page < $totalPages) {
+                                                    echo "<li class='page-item'><a class='page-link' href='Data_produk.php?search=$search&page=" . ($page + 1) . "'>Next</a></li>";
+                                                }
+                                            } else {
+                                                if ($page > 1) {
+                                                    echo "<li class='page-item'><a class='page-link' href=Data_Produk.php?page=" . ($page - 1) . "'>Previous</a></li>";
+                                                }
+
+                                                for ($i = 1; $i <= $totalPages; $i++) {
+                                                    echo "<li class='page-item " . ($page == $i ? 'active' : '') . "'>";
+                                                    echo "<a class='page-link' href='Data_produk.php?page=$i'>$i</a>";
+                                                    echo "</li>";
+                                                }
+
+                                                if ($page < $totalPages) {
+                                                    echo "<li class='page-item'><a class='page-link' href='Data_produk.php?page=" . ($page + 1) . "'>Next</a></li>";
+                                                }
                                             }
 
-                                            for ($i = 1; $i <= $totalPages; $i++) {
-                                                echo "<li class='page-item " . ($page == $i ? 'active' : '') . "'>";
-                                                echo "<a class='page-link' href='?page=$i'>$i</a>";
-                                                echo "</li>";
-                                            }
-
-                                            if ($page < $totalPages) {
-                                                echo "<li class='page-item'><a class='page-link' href='?page=" . ($page + 1) . "'>Next</a></li>";
-                                            }
                                             ?>
                                         </ul>
                                     </div>
-
                                 </div>
                                 <!--card body-->
                             </div>
