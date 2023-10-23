@@ -15,12 +15,12 @@ $offset = ($page - 1) * $limit;
 // fungsi pencarian
 if (isset($_GET['search'])) {
     $search = $conn->real_escape_string($_GET['search']);
-    $query = "SELECT * FROM products WHERE 
+    $query = "SELECT * FROM view_data WHERE 
       product_name LIKE '%$search%' OR 
-      category_id LIKE '%$search%' OR
+      category_name LIKE '%$search%' OR
       description LIKE '%$search%'";
 } else {
-    $query = "SELECT * FROM products";
+    $query = "SELECT * FROM view_data";
 }
 
 // limit dan offset
@@ -130,7 +130,7 @@ $totalPages = ceil($totalRecords / $limit);
                                                 echo "<tr>";
                                                 echo "<td>" . $no . "</td>";
                                                 echo "<td>" . $row['product_name'] . "</td>";
-                                                echo "<td>" . $row['category_id'] . "</td>";
+                                                echo "<td>" . $row['category_name'] . "</td>";
                                                 echo "<td>" . $row['product_code'] . "</td>";
                                                 echo "<td>" . $row['description'] . "</td>";
                                                 echo "<td>" . $row['price'] . "</td>";
