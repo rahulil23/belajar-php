@@ -119,10 +119,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <select name="category_id" id="category_id" class="form-control" required>
                       <?php
                       foreach ($categories as $category) {
-                        echo "<option value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
+                        $categoryId = $category['id'];
+                        $categoryName = $category['category_name'];
+                        $selected = ($categoryId == $product['category_id']) ? 'selected' : '';
+                        echo "<option value='" . $categoryId . "' $selected>" . $categoryName . "</option>";
                       }
                       ?>
                     </select>
+
                   </div>
                   <div class="form-group">
                     <label for="product_code">kode Produk:</label>

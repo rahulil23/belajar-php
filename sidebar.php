@@ -45,6 +45,12 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
+                <a href="tampilan_produk.php" class="nav-link active">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Tampilan Produk</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="Data_produk.php" class="nav-link active">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Data Produk</p>
