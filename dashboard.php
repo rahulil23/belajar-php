@@ -57,6 +57,12 @@ $vendorCount = $queryVendor->fetch_assoc()['count'];
             <!-- Content Header (Page header) -->
             <div class="content-header">
                 <div class="container-fluid">
+                    <div>
+                        <?php
+                        $serverTime = date('l, j F Y H:i:s');
+                        echo '<div class="server-time">Hari ini: <span id="server-time">' . $serverTime . '</span></div>';
+                        ?>
+                    </div>
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1 class="m-0">Dashboard</h1>
@@ -156,6 +162,9 @@ $vendorCount = $queryVendor->fetch_assoc()['count'];
     <script src="asset/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="asset/dist/js/adminlte.min.js"></script>
+    <!-- Time.js -->
+    <script src="asset/js/script.js"></script>
+
 </body>
 
 </html>
