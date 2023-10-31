@@ -15,8 +15,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $description = $_POST['description'];
   $price = $_POST['price'];
 
+  
+    // Menggunakan $_FILES untuk mengakses file yang diunggah
+    $image_paths = [];
+    if (isset($_FILES['product_image']) && !empty($_FILES['product_image']['name'][0])) {
+        $uploadDirectory = 'uploud/'; // Tentukan direktori penyimpanan gambar
 
-  $query = "INSERT INTO products (product_name, description, price, category_id, product_code) VALUES ('$product_name', '$description', '$price', '$category_id', '$product_code')";
+        if (!is_dir($uploadDirectory)) {
+            mkdir($uploadDirectory, 0755, true);
+        }
+
+        foreach ($_FILES['product_image']['tmp_name'] as $key => $tmp_name) {
+            $image_name = $_FILES['product_image']['name'][$key];
+            $image_tmp = $_FILES['product_image']['tmp_name'][$key];
+            $image_path = $uploadDirectory . $image_name;
+
+            if (move_uploaded_file($image_tmp, $image_path)) {
+                $image_paths []  = $image_path;
+            }
+        }
+    }
+
+    // Konversi path gambar ke format JSON
+    $image_json = json_encode($image_paths);
+
+
+  $query = "INSERT INTO products (product_name, description, price, category_id, product_code, image) VALUES ('$product_name', '$description', '$price', '$category_id', '$product_code', '$image_json')";
 
 
   if (mysqli_query($conn, $query)) {
@@ -125,6 +149,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <div class="form-group">
                     <label for="price">Harga:</label>
                     <input type="text" name="price" id="price" class="form-control" placeholder="Harga" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="product_image">Gambar Produk:</label>
+                    <input type="file" name="product_image[]" id="product_image" class="form-control" accept="image/*" multiple>
                   </div>
                 </div>
                 <!-- /.card-body -->

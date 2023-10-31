@@ -31,7 +31,7 @@ if (!$result) {
     die("Error in query execution: " . $conn->error);
 }
 
-$totalRecordsQuery = "SELECT COUNT(*) AS total FROM products";
+$totalRecordsQuery = "SELECT COUNT(*) AS total FROM view_data";
 $totalRecordsResult = $conn->query($totalRecordsQuery);
 $totalRecords = $totalRecordsResult->fetch_assoc()['total'];
 $totalPages = ceil($totalRecords / $limit);
@@ -119,7 +119,8 @@ $totalPages = ceil($totalRecords / $limit);
                                                 <th>Kode produk</th>
                                                 <th>deskripsi</th>
                                                 <th>Harga</th>
-                                                <th>aksi</th>
+                                                <th>Gambar</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -134,6 +135,24 @@ $totalPages = ceil($totalRecords / $limit);
                                                 echo "<td>" . $row['product_code'] . "</td>";
                                                 echo "<td>" . $row['description'] . "</td>";
                                                 echo "<td>" . $row['price'] . "</td>";
+                                                // Periksa apakah $row['image'] adalah null
+                                                if ($row['image'] === null) {
+                                                    echo "<td>Gambar tidak tersedia</td>";
+                                                } else {
+                                                    // Data tidak null, lanjutkan dengan json_decode
+                                                    $imagePaths = json_decode($row['image'], true);
+
+                                                    if (is_array($imagePaths)) {
+                                                        echo "<td>";
+                                                        foreach ($imagePaths as $imagePath) {
+                                                            echo "<img src='" . $imagePath . "' alt='Product Image' width='100'><br>";
+                                                        }
+                                                        echo "</td>";
+                                                    } else {
+                                                        // Jika $imagePaths bukan array, tampilkan pesan kesalahan
+                                                        echo "<td>Error: Data gambar tidak valid.</td>";
+                                                    }
+                                                }
                                                 echo "<td>";
                                                 echo "<a href='edit_produk.php?id=" . $row['id'] . "' class='btn btn-success'>Ubah</a>";
                                                 echo "<a href='hapus_produk.php?id=" . $row['id'] . "' class='btn btn-danger'>Hapus</a>";
@@ -153,7 +172,8 @@ $totalPages = ceil($totalRecords / $limit);
                                                 <th>Kode produk</th>
                                                 <th>deskripsi</th>
                                                 <th>Harga</th>
-                                                <th>aksi</th>
+                                                <th>Gambar</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </tfoot>
                                     </table>
