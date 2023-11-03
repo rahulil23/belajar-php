@@ -1,40 +1,25 @@
 <?php
 include('koneksi.php');
-session_start();
-if (!isset($_SESSION["login"])) {
-    header("location: login.php");
+require('controler_crud.php');
 
-    exit;
-}
 
-// Pagination settings
-$limit = 4;
+
+$product = new Product($conn);
+
+// Handle operasi pencarian produk
+$search = isset($_GET['search']) ? $_GET['search'] : '';
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
-$offset = ($page - 1) * $limit;
+$limit = 4; // Sesuaikan dengan jumlah item yang ingin Anda tampilkan per halaman
+$products = $product->readProducts($search, $page, $limit);
 
-// fungsi pencarian
-if (isset($_GET['search'])) {
-    $search = $conn->real_escape_string($_GET['search']);
-    $query = "SELECT * FROM view_data WHERE 
-      product_name LIKE '%$search%' OR 
-      category_name LIKE '%$search%' OR
-      description LIKE '%$search%'";
+// Periksa apakah ada data yang diambil
+if ($products) {
+    $totalRecords = $product->getTotalRecords();
+    $totalPages = ceil($totalRecords / $limit);
 } else {
-    $query = "SELECT * FROM view_data";
+    $totalRecords = 0;
+    $totalPages = 0;
 }
-
-// limit dan offset
-$query .= " LIMIT $limit OFFSET $offset";
-
-$result = $conn->query($query);
-if (!$result) {
-    die("Error in query execution: " . $conn->error);
-}
-
-$totalRecordsQuery = "SELECT COUNT(*) AS total FROM view_data";
-$totalRecordsResult = $conn->query($totalRecordsQuery);
-$totalRecords = $totalRecordsResult->fetch_assoc()['total'];
-$totalPages = ceil($totalRecords / $limit);
 ?>
 
 <!DOCTYPE html>
@@ -126,7 +111,7 @@ $totalPages = ceil($totalRecords / $limit);
                                         <tbody>
                                             <?php
                                             $no = ($page - 1) * $limit + 1;
-                                            while ($row = $result->fetch_assoc()) {
+                                            while ($row = $products->fetch_assoc()) {
 
                                                 echo "<tr>";
                                                 echo "<td>" . $no . "</td>";

@@ -1,40 +1,15 @@
 <?php
+// login.php
 include('koneksi.php');
-session_start(); // Mulai sesi
-
+require('user_authentication.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Ambil data yang dikirimkan melalui form login
-  $username = $_POST["username"];
-  $password = $_POST["password"];
+    $username = $_POST["username"];
+    $password = $_POST["password"];
 
-  // Hindari SQL Injection
-  $username = $conn->real_escape_string($username);
-
-  // Cari pengguna berdasarkan username
-  $sql = "SELECT * FROM users WHERE username = '$username'";
-  $result = $conn->query($sql);
-
-  if ($result->num_rows == 1) {
-    // Pengguna ditemukan
-    $row = $result->fetch_assoc();
-
-    // Verifikasi password
-    if (password_verify($password, $row["password"])) {
-      // Password benar, simpan informasi pengguna dalam sesi
-      $_SESSION["login"] = $row["id"];
-      $_SESSION["username"] = $row["username"];
-
-      // Redirect ke halaman yang sesuai setelah login berhasil
-      header("Location: dashboard.php");
-    } else {
-      $loginError = "Kombinasi username dan password salah";
-    }
-  } else {
-    $error = "Pengguna tidak ditemukan";
-  }
-
-  $conn->close();
+    $auth = new UserAuthentication($conn);
+    $auth->login($username, $password);
+    $auth->closeConnection();
 }
 ?>
 

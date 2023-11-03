@@ -1,33 +1,17 @@
 <?php
 include('koneksi.php');
+require('user_registration.php');
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST["name"];
     $email = $_POST["email"];
     $phone_number = $_POST["phone_number"];
     $password = $_POST["password"];
 
-    // membuat usernmae dari nomer
-    $username = $phone_number;
-
-    // nilai default gorup_id
-    $group_id = 3;
-
-    // Hash password untuk keamanan
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-
-    // Insert data pengguna ke dalam database
-    $sql = "INSERT INTO users (name, email, phone_number, username, password, group_id) VALUES ('$name', '$email', '$phone_number', '$username', '$hashed_password', $group_id)";
-
-    if ($conn->query($sql) === TRUE) {
-        $success = true;
-    } else {
-        $error = true;
-    }
+    $registration = new UserRegistration($conn);
+    $success = $registration->register($name, $email, $phone_number, $password);
+    $registration->closeConnection();
 }
-
-
-// Close the database connection
-$conn->close();
 ?>
 
 <!DOCTYPE html>

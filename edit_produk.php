@@ -1,11 +1,6 @@
 <?php
 include('koneksi.php');
-session_start();
-if (!isset($_SESSION["login"])) {
-  header("location: login.php");
-
-  exit;
-}
+require('controler_crud.php');
 
 // Ambil ID produk dari parameter URL
 $product_id = $_GET['id'];
@@ -19,30 +14,57 @@ if (!$result || mysqli_num_rows($result) == 0) {
   exit;
 }
 
-
 $product = mysqli_fetch_assoc($result);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  // Ambil data dari formulir
+  // Retrieve data from the form
   $product_name = $_POST['product_name'];
   $category_id = $_POST['category_id'];
   $product_code = $_POST['product_code'];
   $description = $_POST['description'];
   $price = $_POST['price'];
 
-  // Query untuk memperbarui data produk
-  $update_query = "UPDATE products SET product_name = '$product_name', category_id = $category_id, product_code = '$product_code', description = '$description', price = $price WHERE id = $product_id";
+  // Mengelola pengunggahan gambar
+  $imagePath = $product['image']; // Mengambil path gambar yang ada sebagai default
 
+  if (!empty($_FILES['product_image']['name'][0])) {
+    $imageDirectory = 'uploud/'; // Ganti dengan direktori tempat Anda ingin menyimpan gambar
 
-  if (mysqli_query($conn, $update_query)) {
-    echo '<script>alert("Produk berhasil diperbarui!");</script>';
-    header("location: Data_produk.php");
-    exit;
-  } else {
-    echo "Error: " . mysqli_error($conn);
+    $imagePaths = array();
+
+    foreach ($_FILES['product_image']['tmp_name'] as $key => $tmp_name) {
+      if ($_FILES['product_image']['error'][$key] == UPLOAD_ERR_OK) {
+        $imageFileName = uniqid() . '_' . $_FILES['product_image']['name'][$key];
+        $targetPath = $imageDirectory . $imageFileName;
+
+        if (move_uploaded_file($tmp_name, $targetPath)) {
+          $imagePaths[] = $targetPath;
+        }
+      }
+    }
+
+    if (!empty($imagePaths)) {
+      $imagePath = json_encode($imagePaths); // Simpan sebagai JSON
+    }
   }
+
+  // Call the updateProduct function
+    $product_id = $_GET['id']; // Retrieve product ID from the URL
+    $product = new Product($conn);
+    $result = $product->updateProduct($product_id, $product_name, $category_id, $product_code, $description, $price, $imagePath);
+
+    if ($result) {
+        echo '<script>alert("Product updated successfully!");</script>';
+        header("location: Data_produk.php");
+        exit;
+    } else {
+        echo "Error occurred while updating the product.";
+    }
 }
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -126,10 +148,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       }
                       ?>
                     </select>
-
                   </div>
                   <div class="form-group">
-                    <label for="product_code">kode Produk:</label>
+                    <label for="product_code">Kode Produk:</label>
                     <input type="text" name="product_code" id="product_code" class="form-control" required value="<?php echo $product['product_code']; ?>">
                   </div>
                   <div class="form-group">
@@ -140,9 +161,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="price">Harga:</label>
                     <input type="text" name="price" id="price" class="form-control" required value="<?php echo $product['price']; ?>">
                   </div>
+                  <div class="form-group">
+                    <label for="product_image">Gambar Produk:</label>
+                    <?php
+                    if (!empty($product['image'])) {
+                      $images = json_decode($product['image']);
+                      if (is_array($images)) {
+                        echo '<table>';
+                        echo '<tr>';
+                        foreach ($images as $image) {
+                          echo "<td><img src='$image' alt='Product Image' width='100'></td>";
+                        }
+                        echo '</tr>';
+                        echo '</table>';
+                      }
+                    }
+                    ?>
+                    <input type="file" name="product_image[]" id="product_image" class="form-control" accept="image/*" multiple>
+                  </div>
+
                 </div>
                 <!-- /.card-body -->
-
                 <div class="card-footer">
                   <button type="submit" class="btn btn-primary">Perbarui</button>
                 </div>
@@ -167,21 +206,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- /.control-sidebar -->
 
     <!-- Main Footer -->
-    <!-- Main Footer -->
     <?php
     include('footer.php');
     ?>
-    <!--/Main Footer-->
   </div>
   <!-- ./wrapper -->
 
   <!-- REQUIRED SCRIPTS -->
-
-  <!-- jQuery -->
   <script src="asset/plugins/jquery/jquery.min.js"></script>
-  <!-- Bootstrap 4 -->
   <script src="asset/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- AdminLTE App -->
   <script src="asset/dist/js/adminlte.min.js"></script>
 </body>
 

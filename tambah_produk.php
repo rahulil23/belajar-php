@@ -1,11 +1,6 @@
 <?php
 include('koneksi.php');
-session_start();
-if (!isset($_SESSION["login"])) {
-  header("location: login.php");
-
-  exit;
-}
+require('controler_crud.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // Ambil data dari formulir
@@ -15,43 +10,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $description = $_POST['description'];
   $price = $_POST['price'];
 
-  
-    // Menggunakan $_FILES untuk mengakses file yang diunggah
-    $image_paths = [];
-    if (isset($_FILES['product_image']) && !empty($_FILES['product_image']['name'][0])) {
-        $uploadDirectory = 'uploud/'; // Tentukan direktori penyimpanan gambar
+  // Menggunakan $_FILES untuk mengakses file yang diunggah
+  $image_paths = [];
+  if (isset($_FILES['product_image']) && !empty($_FILES['product_image']['name'][0])) {
+      $uploadDirectory = 'uploud/'; // Tentukan direktori penyimpanan gambar
 
-        if (!is_dir($uploadDirectory)) {
-            mkdir($uploadDirectory, 0755, true);
-        }
+      if (!is_dir($uploadDirectory)) {
+          mkdir($uploadDirectory, 0755, true);
+      }
 
-        foreach ($_FILES['product_image']['tmp_name'] as $key => $tmp_name) {
-            $image_name = $_FILES['product_image']['name'][$key];
-            $image_tmp = $_FILES['product_image']['tmp_name'][$key];
-            $image_path = $uploadDirectory . $image_name;
+      foreach ($_FILES['product_image']['tmp_name'] as $key => $tmp_name) {
+          $image_name = $_FILES['product_image']['name'][$key];
+          $image_tmp = $_FILES['product_image']['tmp_name'][$key];
+          $image_path = $uploadDirectory . $image_name;
 
-            if (move_uploaded_file($image_tmp, $image_path)) {
-                $image_paths []  = $image_path;
-            }
-        }
-    }
+          if (move_uploaded_file($image_tmp, $image_path)) {
+              $image_paths[] = $image_path;
+          }
+      }
+  }
 
-    // Konversi path gambar ke format JSON
-    $image_json = json_encode($image_paths);
+  // Konversi path gambar ke format JSON
+  $image_json = json_encode($image_paths);
 
+  $product = new Product($conn);
 
-  $query = "INSERT INTO products (product_name, description, price, category_id, product_code, image) VALUES ('$product_name', '$description', '$price', '$category_id', '$product_code', '$image_json')";
-
-
-  if (mysqli_query($conn, $query)) {
-    echo '<script>alert("Produk berhasil ditambahkan!");</script>';
-    header("location: Data_produk.php");
-    exit;
+  if ($product->createProduct($product_name, $description, $price, $category_id, $product_code, $image_json)) {
+      echo '<script>alert("Produk berhasil ditambahkan!");</script>';
+      header("location: Data_produk.php");
+      exit;
   } else {
-    echo "Error: " . mysqli_error($conn);
+      echo "Error: Gagal menambahkan produk.";
   }
 }
-
 ?>
 
 <!DOCTYPE html>
